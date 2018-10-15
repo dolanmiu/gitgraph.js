@@ -1,9 +1,9 @@
 /* ==========================================================
- *                  GitGraph v1.11.4
+ *                  GitGraph v1.13.0
  *      https://github.com/nicoespeon/gitgraph.js
  * ==========================================================
- * Copyright (c) 2017 Nicolas CARLO (@nicoespeon) ٩(^‿^)۶
- * Copyright (c) 2017 Fabien BERNARD (@fabien0102) ✌(✰‿✰)✌
+ * Copyright (c) 2018 Nicolas CARLO (@nicoespeon) ٩(^‿^)۶
+ * Copyright (c) 2018 Fabien BERNARD (@fabien0102) ✌(✰‿✰)✌
  *
  * GitGraph.js may be freely distributed under the MIT Licence
  * ========================================================== */
@@ -636,6 +636,7 @@
    * @property {string} [tagFont = this.template.commit.tag.font] - Font of the tag
    * @property {string} [displayTagBox = true] - If true, display a box around the tag
    *
+   * @property {string} [dotFont = this.template.commit.dot.font] - Font of the dot
    * @property {string} [dotColor = color] - Specific dot color
    * @property {number} [dotSize = this.template.commit.dot.size] - Dot size
    * @property {number} [dotStrokeWidth = this.template.commit.dot.strokeWidth] - Dot stroke width
@@ -1056,6 +1057,8 @@
    * @param {string} [options.tagFont = this.template.commit.tag.font] - Font of the tag
    * @param {string} [options.displayTagBox = true] - If true, display a box around the tag
    *
+
+   * @param {string} [options.dotFont = this.template.commit.dot.font] - Font of the dot
    * @param {string} [options.dotColor = options.color] - Specific dot color
    * @param {number} [options.dotSize = this.template.commit.dot.size] - Dot size
    * @param {number} [options.dotStrokeWidth = this.template.commit.dot.strokeWidth] - Dot stroke width
@@ -1063,6 +1066,7 @@
    * @param {number[]} [options.lineDash = this.template.commit.dot.lineDash]
    *
    * @param {string} [options.message = "He doesn't like George Michael! Boooo!"] - Commit message
+   * @param {string} [options.commitDotText] - short commit message (A few chars) to appear on the commit dot
    * @param {string} [options.messageColor = options.color] - Specific message color
    * @param {string} [options.messageFont = this.template.commit.message.font] - Font of the message
    * @param {boolean} [options.messageDisplay = this.template.commit.message.display] - Commit message display policy
@@ -1096,6 +1100,7 @@
     this.detail = options.detail || null;
     this.sha1 = options.sha1 || (Math.random(100)).toString(16).substring(3, 10);
     this.message = options.message || "He doesn't like George Michael! Boooo!";
+    this.commitDotText = options.commitDotText;
     this.arrowDisplay = options.arrowDisplay;
     this.messageDisplay = _booleanOptionOr(options.messageDisplay, this.template.commit.message.display);
     this.messageAuthorDisplay = _booleanOptionOr(options.messageAuthorDisplay, this.template.commit.message.displayAuthor);
@@ -1103,6 +1108,7 @@
     this.messageHashDisplay = _booleanOptionOr(options.messageHashDisplay, this.template.commit.message.displayHash);
     this.messageColor = options.messageColor || options.color;
     this.messageFont = options.messageFont || this.template.commit.message.font;
+    this.dotFont = options.dotFont || this.template.commit.dot.font;
     this.dotColor = options.dotColor || options.color;
     this.dotSize = options.dotSize || this.template.commit.dot.size;
     this.dotStrokeWidth = options.dotStrokeWidth || this.template.commit.dot.strokeWidth;
@@ -1213,6 +1219,21 @@
       } else {
         this.detail.style.top = detailPositionTop + DETAIL_OFFSET_TOP_IN_PX + "px";
       }
+    }
+
+    // Commit Dot Text
+    if (this.commitDotText) {
+      var previousTextBaseline = this.context.textBaseline;
+      var previousTextAlign = this.context.textAlign;
+
+      this.context.font = this.dotFont;
+      this.context.fillStyle = "#000";
+      this.context.textAlign = "center";
+      this.context.textBaseline = "middle";
+      this.context.fillText(this.commitDotText, this.x, this.y);
+
+      this.context.textBaseline = previousTextBaseline;
+      this.context.textAlign = previousTextAlign;
     }
 
     // Message
@@ -1386,6 +1407,7 @@
    * @param {number} [options.commit.spacingY] - Space between commits
    * @param {number} [options.commit.widthExtension = 0]  - Additional width to be added to the calculated width
    * @param {string} [options.commit.color] - Master commit color (dot & message)
+   * @param {string} [options.commit.dot.font] - Commit dot color
    * @param {string} [options.commit.dot.color] - Commit dot color
    * @param {number} [options.commit.dot.size] - Commit dot size
    * @param {number} [options.commit.dot.strokeWidth] - Commit dot stroke width
@@ -1460,6 +1482,7 @@
     this.commit.dot = {};
 
     // Only one color, if null message takes branch color (only dot)
+    this.commit.dot.font = options.commit.dot.font || "normal 10pt Calibri";
     this.commit.dot.color = options.commit.dot.color || null;
     this.commit.dot.size = options.commit.dot.size || 3;
     this.commit.dot.strokeWidth = options.commit.dot.strokeWidth || null;
